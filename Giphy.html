@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Giphy Search</title>
+	<script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+<body>
+	<form id = "search">Search for the GIFs you want<br>
+  		<input type="search" id="userSearch">
+  		<button id = "searchCommit">Search</button>
+  		<p id = "message"></p>
+	</form>
+	<div id="ratingButts">
+		<form>Ratings<br>
+				G<input id="g" type="checkbox" class="rating">
+				PG<input id="pg" type="checkbox" class="rating">
+				PG-13<input id="pg-13" type="checkbox" class="rating">
+				R<input id="r" type="checkbox" class="rating">
+		</form>
+	</div>
+	<div id="buttonsDiv"></div>
+	<div id="gifsDiv" class="col-sm-12"></div>
+</body>
+<script type="text/javascript">
+	//All Variables//
+	var gifTopicArray = ["Oprah", "Jerry Springer", "Watermelon Smash", "Science", "ftw", "Syrup", "Slomo", "fail", "dunk"]
+	var buttTopic = ""
+	var ratingArray = [];
+	var apiKEY = "&api_key=dc6zaTOxFJmzC"
+	var queryURL = "http://api.giphy.com/v1/gifs/search?q="
+	
+	//Either push or remove the rating from the ratingArray.
+	function selectRatings(rating){
+		if($("#"+rating).is(':checked')) {
+			ratingArray.push($("#"+rating).attr("id"))
+			console.log(ratingArray)
+		}
+		else{
+			ratingArray = jQuery.grep(ratingArray, function(value) {
+  			return value != $("#"+rating).attr("id");
+						});
+			console.log(ratingArray);
+			// console.log($("#"+rating).attr('checked'))
+		}
+	}
+	//When you check or uncheck a rating box, run selectRating Function
+	$(".rating").click(function(){
+		// if($(this).attr('checked') == true) {
+		// 	$(this).attr('checked', 'unchecked')
+		// }
+		// else{
+		// 	$(this).attr('checked', 'checked)
+		// }
+		selectRatings($(this).attr("id"))
+		})
+
+
+			            
+
+	//Start with 10 default buttons//
+	function makeButtons(gifTopic){
+		for(i=0; i< gifTopic.length; i++){
+			var butt = $("<button>");
+			buttTopic = gifTopic[i];
+			butt.append(buttTopic);
+			butt.attr("id", buttTopic);
+			butt.attr("class", "gifButton");
+			butt.attr("val", buttTopic);
+			
+			//On Click AJAX Call. Get response and display 10 GIFs.
+			butt.click(function(){
+				console.log($(this).attr("id"))
+				buttTopic = $(this).attr("id");
+				console.log(queryURL+buttTopic+"&rating="+ratingArray+"&limit=10"+apiKEY)
+				$.ajax({
+        		url: queryURL+buttTopic+"&?rating="+ratingArray+"&limit=10"+apiKEY,
+        		method: "GET"
+      			})
+      //What will we do with the returned information? (done function)
+      			.done(function(response) {
+      				console.log(response.data);
+      				var results = response.data;
+			          for (var i = 0; i < results.length; i++) {
+			            var gifDiv = $("<div class='item'>");
+			            var rating = results[i].rating;
+			            var p = $("<p>").text("Rating: " + rating);
+			            var personImage = $("<img state='unclicked'>");
+			            personImage.attr("src", results[i].images.fixed_height_small_still.url);
+
+			            function move(results, iterate){
+					    	console.log($(this))
+					    	console.log($(this).attr("state"))
+					    	if($(this).attr("state", "unclicked")) {
+					    		$(this).attr("state", "clicked");
+					    		$(this).attr("src", results[iterate].images.fixed_height_small.url)
+					    	}
+					    	else 
+					    		// if($(this).attr("state", "clicked"))
+					    		{
+					    		$(this).attr("state", "unclicked");
+					    		$(this).attr("src", results[i].images.fixed_height_small_still.url);
+					    	}
+					    	
+
+					    }
+			            
+			            personImage.click(move(results, i))
+			            gifDiv.prepend(p);
+			            gifDiv.prepend(personImage);
+			            $("#gifsDiv").prepend(gifDiv);
+			           }
+			    });
+			})
+			$("#buttonsDiv").append(butt)
+		}
+	}
+	makeButtons(gifTopicArray)
+
+
+	// function searchGifs(topic){
+		$("#searchCommit").click(function(){
+			event.preventDefault()
+			var userInput = $("#userSearch").val()
+			userInput = userInput.toLowerCase()
+			if(gifTopicArray.includes(userInput) == false){
+				console.log($("#userSearch").val())
+				gifTopicArray.push($("#userSearch").val());
+				// console.log(gifTopicArray)
+				$(".gifButton").remove()
+				makeButtons(gifTopicArray);
+				console.log(gifTopicArray)
+				$("#message").empty()
+			}
+			else{$("#message").empty()
+				$("#message").append("This topic already exists.")
+				$("#message").css('backgroundColor', '#dedede');
+				$("#message").animate({
+				    'opacity': '0.5'
+				}, 1000, function () {
+				    $('.bg').css({
+				        'backgroundColor': '#fff',
+				            'opacity': '1'
+				    });
+				});
+			}
+		})
+
+
+
+</script>
+<style>
+	.white{
+		background-color: white;
+		transition: background-color 1s linear
+	}
+	.highlight{
+		background-color: yellow;
+		transition: background-color 1s linear;
+	}
+	.item{
+		width: 25%;
+		align-content: center;
+	}
+</style>
+
+
+
+
+
+
+
+
+</html>
