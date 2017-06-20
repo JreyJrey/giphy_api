@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>Giphy Search</title>
-	<script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+	<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -85,38 +85,45 @@
 			            var gifDiv = $("<div class='item'>");
 			            var rating = results[i].rating;
 			            var p = $("<p>").text("Rating: " + rating);
-			            var personImage = $("<img state='unclicked'>");
+			            var personImage = $("<img class = 'blah' state='unclicked'>");
+			            personImage.attr("data-animate", results[i].images.fixed_height_small.url);
+			            personImage.attr("data-still", results[i].images.fixed_height_small_still.url);
 			            personImage.attr("src", results[i].images.fixed_height_small_still.url);
 
-			            function move(results, iterate){
-					    	console.log($(this))
-					    	console.log($(this).attr("state"))
-					    	if($(this).attr("state", "unclicked")) {
-					    		$(this).attr("state", "clicked");
-					    		$(this).attr("src", results[iterate].images.fixed_height_small.url)
-					    	}
-					    	else 
-					    		// if($(this).attr("state", "clicked"))
-					    		{
-					    		$(this).attr("state", "unclicked");
-					    		$(this).attr("src", results[i].images.fixed_height_small_still.url);
-					    	}
-					    	
-
-					    }
-			            
-			            personImage.click(move(results, i))
-			            gifDiv.prepend(p);
+			      //       function move(results, iterate){
+					    // 	console.log($(this))
+					    // 	console.log($(this).attr("state"))
+					    
+					    	gifDiv.prepend(p);
 			            gifDiv.prepend(personImage);
 			            $("#gifsDiv").prepend(gifDiv);
+					    }
+			            
+			            // personImage.click(move(results, i))
+			            
 			           }
-			    });
-			})
+
+			    );
+
+			});
 			$("#buttonsDiv").append(butt)
 		}
 	}
 	makeButtons(gifTopicArray)
 
+$(document).on("click", ".blah", function(){
+
+	if($(this).attr("state") === "unclicked") {
+		$(this).attr("state", "clicked");
+		$(this).attr("src", $(this).attr("data-animate"));
+	}
+	else 
+		// if($(this).attr("state", "clicked"))
+		{
+		$(this).attr("state", "unclicked");
+		$(this).attr("src", $(this).attr("data-still"));
+	}
+	});
 
 	// function searchGifs(topic){
 		$("#searchCommit").click(function(){
